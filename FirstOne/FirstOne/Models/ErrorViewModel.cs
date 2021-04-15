@@ -1,5 +1,3 @@
-using System;
-
 namespace FirstOne.Models
 {
     public class ErrorViewModel

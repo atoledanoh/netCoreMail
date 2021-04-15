@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EmailService;
+using FirstOne.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using FirstOne.Models;
 
 namespace FirstOne.Controllers
 {
     public class StudentsController : Controller
     {
         private readonly SchoolContext _context;
+        private readonly IEmailSender _emailSender;
 
-        public StudentsController(SchoolContext context)
+        public StudentsController(SchoolContext context, IEmailSender emailSender)
         {
             _context = context;
+            _emailSender = emailSender;
         }
 
         // GET: Students
@@ -91,6 +92,11 @@ namespace FirstOne.Controllers
         {
             if (ModelState.IsValid)
             {
+                var message = new EmailMessage("enrollment@nbcc.ca", "New Student Enrollment"
+                     , $"The following student has been added {student.FullName}");
+
+                _emailSender.SendEmail(message);
+
                 _context.Add(student);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
